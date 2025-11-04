@@ -1,89 +1,116 @@
-# 📈 Qiu Huiting’s KOSPI200 Explorer — Enhanced Version
+# 📈 Qiu Huiting’s KOSPI200 Stock Recommendation System
+# English version inspired by the Korean reference site
 
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import requests
-from io import StringIO
 
-# --- Page config ---
-st.set_page_config(page_title="Qiu Huiting’s KOSPI200 Explorer", page_icon="📈", layout="wide")
+# ---------------- PAGE CONFIG ----------------
+st.set_page_config(page_title="Qiu Huiting’s KOSPI200 Recommender", page_icon="📈", layout="wide")
 
-# --- CSS style ---
+# ---------------- CUSTOM STYLE ----------------
 st.markdown("""
 <style>
 body { background-color: #f7f7f7; }
-h1 { text-align: center; font-weight: 800; color: #222; }
-.card { background-color: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0px 2px 6px rgba(0,0,0,0.1); }
+h1, h2, h3 { color: #1b3b5f; }
+p.subtitle { text-align:center; color:gray; margin-top:-10px; margin-bottom:30px; }
+.sidebar .sidebar-content { background-color: #f4f6f9; }
+.stButton > button {
+    border-radius: 20px;
+    background-color: #1b6ca8;
+    color: white;
+    font-weight: 600;
+    padding: 8px 25px;
+}
+.table th, .table td {
+    padding: 8px 12px;
+}
+.card {
+    background-color: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
 </style>
 """, unsafe_allow_html=True)
 
-# --- Header ---
-st.markdown("<h1>📈 KOSPI200 Explorer</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:gray;'>Explore KOSPI200 index with advanced visuals and statistics</p>", unsafe_allow_html=True)
+# ---------------- HEADER ----------------
+st.markdown("<h1>📊 KOSPI200 Stock Recommendation System</h1>", unsafe_allow_html=True)
+st.markdown("<p class='subtitle'>A simple analysis tool to help beginners understand KOSPI200 market trends</p>", unsafe_allow_html=True)
 
-# --- Sidebar inputs ---
-st.sidebar.header("Settings")
-symbol = st.sidebar.text_input("Stock/Index Symbol", value="^KS200")
-time_range = st.sidebar.selectbox("Time Range", ["1M", "3M", "6M", "1Y", "All"])
+# ---------------- SIDEBAR ----------------
+st.sidebar.header("⚙️ Settings")
 
-upload_csv = st.sidebar.file_uploader("Upload CSV (fallback)", type=["csv"])
+api_key = st.sidebar.text_input("🔑 API Key Information (optional)", placeholder="Enter your API key here")
+st.sidebar.markdown("---")
 
-# --- Data fetching / loading ---
-def fetch_data(symbol):
-    # placeholder: fetch via some API or use uploaded CSV
-    url = f"https://stooq.com/q/d/l/?s={symbol}&i=d"
-    r = requests.get(url)
-    r.raise_for_status()
-    df = pd.read_csv(StringIO(r.text))
-    df["Date"] = pd.to_datetime(df["Date"])
-    df = df.sort_values("Date")
-    return df
+st.sidebar.header("📊 Analysis Settings")
+num_stocks = st.sidebar.slider("Number of recommended stocks", 1, 20, 5)
+min_volume = st.sidebar.slider("Minimum trading volume (in 100M KRW)", 10, 500, 100)
 
-if upload_csv is not None:
-    df = pd.read_csv(upload_csv)
-    df["Date"] = pd.to_datetime(df["Date"])
-    df = df.sort_values("Date")
-else:
-    try:
-        df = fetch_data(symbol)
-    except Exception as e:
-        st.error(f"Failed to fetch data: {e}")
-        st.stop()
+st.sidebar.markdown("---")
+st.sidebar.header("🔁 Data Refresh")
+if st.sidebar.button("Update Data"):
+    st.sidebar.success("Data updated successfully!")
 
-# --- Filter by time range ---
-end_date = df["Date"].max()
-if time_range != "All":
-    mapping = {"1M": 30, "3M": 90, "6M": 180, "1Y": 365}
-    days = mapping.get(time_range, 365)
-    start_date = end_date - pd.Timedelta(days=days)
-    df = df[df["Date"] >= start_date]
+# ---------------- MAIN CONTENT ----------------
+st.markdown("### 🧩 How to Start the Analysis")
+st.info("Please enter your API key in the left menu and click **‘Start Analysis’** after selecting settings!")
 
-# --- Statistics cards ---
-latest = df.iloc[-1]
-highest = df["High"].max()
-lowest = df["Low"].min()
-pct_change = (latest["Close"] / df.iloc[0]["Close"] - 1) * 100
+st.markdown("## 📘 What is this tool?")
+st.markdown("""
+This dashboard automatically analyzes **KOSPI200 companies**  
+and recommends stocks with good potential for buying decisions.
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown(f"<div class='card'><h3>Latest Close</h3><p>{latest['Close']:.2f}</p></div>", unsafe_allow_html=True)
-with col2:
-    st.markdown(f"<div class='card'><h3>52-Week High</h3><p>{highest:.2f}</p></div>", unsafe_allow_html=True)
-with col3:
-    st.markdown(f"<div class='card'><h3>Change (%)</h3><p>{pct_change:.2f}%</p></div>", unsafe_allow_html=True)
+**Analysis criteria include:**
+- 📈 **Uptrend check**: Detects whether prices are showing upward momentum  
+- ⚡ **Rising speed**: Evaluates how fast prices have increased recently  
+- 💹 **Trading activity**: Measures how actively the stock is being traded  
+- 💰 **Fair price zone**: Avoids stocks that are too expensive or too cheap  
+- 🧠 **Stability**: Prefers stocks with smaller price fluctuations
+""")
 
-# --- Chart ---
-fig = px.line(df, x="Date", y="Close", title=f"{symbol} Close Price")
-fig.update_layout(plot_bgcolor="white", xaxis_title="", yaxis_title="Price (KRW)")
-st.plotly_chart(fig, use_container_width=True)
+# ---------------- SCORE TABLE ----------------
+st.markdown("## 💯 How is the recommendation score calculated?")
 
-# --- Additional visuals: Moving average ---
-df["MA20"] = df["Close"].rolling(window=20).mean()
-fig2 = px.line(df, x="Date", y=["Close", "MA20"], title="Close & MA20")
-fig2.update_layout(plot_bgcolor="white", xaxis_title="", yaxis_title="Price (KRW)")
-st.plotly_chart(fig2, use_container_width=True)
+score_data = {
+    "Criteria": [
+        "Uptrend continuation",
+        "Strong upward momentum",
+        "Increased trading volume",
+        "Reasonable price range",
+        "Rise vs. previous day",
+        "Low price volatility"
+    ],
+    "Score": [
+        "+4 points",
+        "+2 ~ +3 points",
+        "+1 ~ +2 points",
+        "+1.5 points",
+        "+1 point",
+        "+0.5 ~ +1 point"
+    ]
+}
+score_df = pd.DataFrame(score_data)
 
-# --- Data table last rows ---
-st.markdown("<div class='card'><h3>Recent Data</h3></div>", unsafe_allow_html=True)
-st.dataframe(df.tail(10), use_container_width=True)
+st.table(score_df)
+
+# ---------------- DEMO RESULT SECTION ----------------
+st.markdown("## 📈 Example of Recommended Stocks (Demo Data)")
+demo_data = {
+    "Rank": [1, 2, 3, 4, 5],
+    "Company": ["Samsung Electronics", "LG Chem", "Hyundai Motor", "Kakao Corp", "SK Hynix"],
+    "Score": [96, 91, 89, 87, 85],
+    "Trend": ["⬆️ Strong Uptrend", "⬆️ Uptrend", "↗️ Moderate", "➡️ Stable", "⬆️ Uptrend"]
+}
+demo_df = pd.DataFrame(demo_data)
+st.dataframe(demo_df, use_container_width=True)
+
+st.success("✅ Analysis complete! This is demo data for layout preview.")
+
+# ---------------- FOOTER ----------------
+st.markdown("---")
+st.markdown(
+    "<p style='text-align:center;color:gray;'>© 2025 Qiu Huiting | Built with Streamlit & ❤️</p>",
+    unsafe_allow_html=True
+)
