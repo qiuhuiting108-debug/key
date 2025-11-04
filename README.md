@@ -1,17 +1,22 @@
-# 📈 KOSPI200 Explorer (Enhanced Version)
+# 📊 Qiu Huiting’s KOSPI200 Stock Recommendation System
 
-This is an interactive web app built with Streamlit for exploring the KOSPI200 index.
+An English interactive Streamlit dashboard that mimics and enhances the Korean version of a KOSPI200 analysis system.
 
-## Features
-- Fetches index data automatically (or allows CSV upload)  
-- Filter time range (1 month, 3 months, 6 months, 1 year, all)  
-- Displays key statistics (latest close, high, change %)  
-- Line chart of closing price  
-- Moving average overlay (MA20)  
-- Recent data table  
-- Stylish UI with cards and minimal design  
+### 🌟 Features
+- Sidebar configuration (API key, sliders)
+- Explanation of tool purpose and analysis logic
+- Recommendation score table
+- Example recommended stock list
+- Responsive design and elegant layout
 
-## Run locally
+### 🧠 How it works
+This app mimics a real KOSPI200 recommender by showing how a scoring system could analyze:
+- Uptrend signals
+- Price momentum
+- Trading volume
+- Fair value and volatility
+
+### 💻 Run locally
 ```bash
 pip install -r requirements.txt
 streamlit run streamlit_app.py
