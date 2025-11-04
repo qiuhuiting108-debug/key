@@ -1,22 +1,16 @@
-# 📊 Qiu Huiting’s KOSPI200 Stock Recommendation System
+# 📊 KOSPI200 Stock Recommendation System (English version)
 
-An English interactive Streamlit dashboard that mimics and enhances the Korean version of a KOSPI200 analysis system.
+An English-language version of a KOSPI200 analysis dashboard, inspired by the Korean project example.
 
-### 🌟 Features
-- Sidebar configuration (API key, sliders)
-- Explanation of tool purpose and analysis logic
-- Recommendation score table
-- Example recommended stock list
-- Responsive design and elegant layout
+## Features
+- API Authentication panel (APP KEY, SECRET, Account)
+- Optional real-time API usage checkbox
+- Sidebar configuration sliders
+- Main content with explanation and scoring table
+- Example recommendation results table
+- Clean professional layout
 
-### 🧠 How it works
-This app mimics a real KOSPI200 recommender by showing how a scoring system could analyze:
-- Uptrend signals
-- Price momentum
-- Trading volume
-- Fair value and volatility
-
-### 💻 Run locally
+## How to run
 ```bash
 pip install -r requirements.txt
 streamlit run streamlit_app.py
