@@ -1,11 +1,10 @@
-# 📈 Qiu Huiting’s KOSPI200 Stock Recommendation System
-# English version inspired by the Korean reference site
+# 📈 Qiu Huiting’s KOSPI200 Stock Recommendation System (with API Authentication Panel)
 
 import streamlit as st
 import pandas as pd
 
 # ---------------- PAGE CONFIG ----------------
-st.set_page_config(page_title="Qiu Huiting’s KOSPI200 Recommender", page_icon="📈", layout="wide")
+st.set_page_config(page_title="KOSPI200 Stock Recommendation System", page_icon="📈", layout="wide")
 
 # ---------------- CUSTOM STYLE ----------------
 st.markdown("""
@@ -14,15 +13,12 @@ body { background-color: #f7f7f7; }
 h1, h2, h3 { color: #1b3b5f; }
 p.subtitle { text-align:center; color:gray; margin-top:-10px; margin-bottom:30px; }
 .sidebar .sidebar-content { background-color: #f4f6f9; }
-.stButton > button {
+.stButton>button {
     border-radius: 20px;
     background-color: #1b6ca8;
     color: white;
     font-weight: 600;
     padding: 8px 25px;
-}
-.table th, .table td {
-    padding: 8px 12px;
 }
 .card {
     background-color: white;
@@ -30,6 +26,21 @@ p.subtitle { text-align:center; color:gray; margin-top:-10px; margin-bottom:30px
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
+.api-box {
+    background-color: #eef3ff;
+    border-radius: 8px;
+    padding: 12px;
+    color: #2b4a83;
+    font-size: 0.9rem;
+}
+.warning-box {
+    background-color: #fff8e5;
+    border-radius: 8px;
+    padding: 10px;
+    color: #8a6d3b;
+    font-size: 0.9rem;
+    border-left: 4px solid #f0ad4e;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -41,13 +52,31 @@ st.markdown("<p class='subtitle'>A simple analysis tool to help beginners unders
 # ---------------- SIDEBAR ----------------
 st.sidebar.header("⚙️ Settings")
 
-api_key = st.sidebar.text_input("🔑 API Key Information (optional)", placeholder="Enter your API key here")
+# API Authentication collapsible section
+with st.sidebar.expander("🔑 API Authentication Information"):
+    st.markdown(
+        "<div class='api-box'>To use the <b>Korea Investment & Securities API</b>, please enter your authentication details below.</div>",
+        unsafe_allow_html=True
+    )
+
+    app_key = st.text_input("APP KEY", type="password")
+    app_secret = st.text_input("APP SECRET", type="password")
+    account_number = st.text_input("Account Number")
+
+    use_realtime = st.checkbox("Use Real-Time API")
+    st.markdown(
+        "<div class='warning-box'>⚠️ Please enter your API information if you wish to receive real-time data.</div>",
+        unsafe_allow_html=True
+    )
+
 st.sidebar.markdown("---")
 
+# Analysis settings
 st.sidebar.header("📊 Analysis Settings")
 num_stocks = st.sidebar.slider("Number of recommended stocks", 1, 20, 5)
 min_volume = st.sidebar.slider("Minimum trading volume (in 100M KRW)", 10, 500, 100)
 
+# Data refresh section
 st.sidebar.markdown("---")
 st.sidebar.header("🔁 Data Refresh")
 if st.sidebar.button("Update Data"):
@@ -92,7 +121,6 @@ score_data = {
     ]
 }
 score_df = pd.DataFrame(score_data)
-
 st.table(score_df)
 
 # ---------------- DEMO RESULT SECTION ----------------
